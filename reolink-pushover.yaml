@@ -1,6 +1,6 @@
 blueprint:
   name: Reolink Kamera Benachrichtigung bei Bewegungserkennung
-  description: Sendet ein Bild von der Reolink Kamera per Pushover, wenn eine Person oder ein Tier erkannt wird, aber nur einmal alle 60 Sekunden.
+  description: Sendet ein Bild von der Reolink Kamera per Pushover, wenn eine Person, ein Besucher, ein Paket, ein Tier oder ein Auto erkannt wird, aber nur einmal alle 60 Sekunden.
   domain: automation
   input:
     camera_entity:
@@ -15,6 +15,11 @@ blueprint:
       selector:
         entity:
           domain: binary_sensor
+    detected_object:
+      name: Erkanntes Objekt
+      description: Beschreibe das erkannte Objekt (z.B. Person, Besucher, Paket, Tier, Auto)
+      selector:
+        text:
     interval:
       name: Minimaler Intervall
       description: Minimaler Zeitabstand (in Sekunden) zwischen zwei Benachrichtigungen.
@@ -40,6 +45,12 @@ condition:
 action:
   - variables:
       snapshot_file: "/config/www/snapshot_{{ states.entity_id | replace('.', '_') }}.jpg"
+      artikel: >
+        {% if !input.detected_object in ["Besucher", "Paket", "Auto", "Tier"] %}
+          Ein
+        {% else %}
+          Eine
+        {% endif %}
   
   - service: camera.snapshot
     data:
@@ -48,7 +59,7 @@ action:
   
   - service: notify.pushover_reolink
     data:
-      title: "Bewegung erkannt!"
-      message: "Eine Person oder ein Tier wurde erkannt."
+      title: "{{ artikel }} {{ !input.detected_object }} wurde erkannt!"
+      message: "{{ artikel }} {{ !input.detected_object }} wurde erkannt."
       data:
         attachment: "{{ snapshot_file }}"
