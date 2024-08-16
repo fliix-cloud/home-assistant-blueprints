@@ -43,10 +43,6 @@ trigger:
     from: "off"
     to: "on"
 
-condition:
-  - condition: template
-    value_template: "{{ (as_timestamp(now()) - as_timestamp(state_attr(this.entity_id, 'last_triggered') | default(0))) | int > (input.interval | int) }}"
-
 action:
   - variables:
       detected_object: !input detected_object
@@ -64,3 +60,6 @@ action:
       message: "{{ detected_object }} detected at {{ camera_location }}"
       data:
         attachment: "{{ snapshot_file }}"
+        
+  - delay:
+    seconds: !input.interval
