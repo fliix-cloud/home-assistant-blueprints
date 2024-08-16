@@ -1,0 +1,63 @@
+blueprint:
+  name: Reolink Kamera Benachrichtigung bei Bewegungserkennung
+  description: Sendet ein Bild von der Reolink Kamera per Pushover, wenn eine Person oder ein Tier erkannt wird, aber nur einmal alle 60 Sekunden.
+  domain: automation
+  input:
+    camera_entity:
+      name: Kamera
+      description: Die Kamera, die das Bild liefern soll.
+      selector:
+        entity:
+          domain: camera
+    motion_sensor:
+      name: Bewegungssensor
+      description: Der Bewegungssensor, der den 1/0 Zustand liefert.
+      selector:
+        entity:
+          domain: binary_sensor
+    pushover_user_key:
+      name: Pushover User Key
+      description: Dein Pushover User Key
+      selector:
+        text:
+    pushover_api_token:
+      name: Pushover API Token
+      description: Dein Pushover API Token
+      selector:
+        text:
+    interval:
+      name: Minimaler Intervall
+      description: Minimaler Zeitabstand (in Sekunden) zwischen zwei Benachrichtigungen.
+      default: 60
+      selector:
+        number:
+          min: 10
+          max: 600
+          unit_of_measurement: seconds
+
+mode: single
+
+trigger:
+  - platform: state
+    entity_id: !input motion_sensor
+    from: "off"
+    to: "on"
+
+condition:
+  - condition: template
+    value_template: "{{ (as_timestamp(now()) - as_timestamp(state_attr(this.entity_id, 'last_triggered') | default(0))) | int > (input.interval | int) }}"
+
+action:
+  - service: camera.snapshot
+    data:
+      entity_id: !input camera_entity
+      filename: "/config/www/snapshot_{{ states(!input.camera_entity) }}.jpg"
+  
+  - service: notify.pushover
+    data:
+      title: "Bewegung erkannt!"
+      message: "Eine Person oder ein Tier wurde erkannt."
+      data:
+        attachment: "/config/www/snapshot_{{ states(!input.camera_entity) }}.jpg"
+      target: !input pushover_user_key
+      token: !input pushover_api_token
