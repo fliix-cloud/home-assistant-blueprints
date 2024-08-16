@@ -45,7 +45,7 @@ trigger:
 
 variables:
   helper_entity: >
-    {{ 'input_datetime.' + states['!input.motion_sensor'].object_id + '_last_triggered' | replace('binary_sensor.', '') }}
+    {{ 'input_datetime.' + states['!input motion_sensor'].object_id + '_last_triggered' | replace('binary_sensor.', '') }}
 
 condition:
   - condition: template
@@ -55,13 +55,13 @@ condition:
 
 action:
   - variables:
-      detected_object: !input.detected_object
-      camera_location: !input.camera_location
-      snapshot_file: "/config/www/snapshot_{{ states['!input.camera_entity'].object_id }}.jpg"
+      detected_object: !input detected_object
+      camera_location: !input camera_location
+      snapshot_file: "/config/www/snapshot_{{ states['!input camera_entity'].object_id }}.jpg"
   
   - service: camera.snapshot
     data:
-      entity_id: !input.camera_entity
+      entity_id: !input camera_entity
       filename: "{{ snapshot_file }}"
   
   - service: notify.pushover_reolink
