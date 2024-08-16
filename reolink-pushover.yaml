@@ -45,19 +45,18 @@ trigger:
 
 condition:
   - condition: template
-    value_template: "{{ (as_timestamp(now()) - as_timestamp(state_attr(this.entity_id, 'last_triggered') | default(0))) | int > (input.interval | int) }}"
+    value_template: >
+      {{ (as_timestamp(now()) - as_timestamp(states('input_number.interval') | float)) > states('input_number.interval') | float }}
 
 action:
   - variables:
       detected_object: !input detected_object
       camera_location: !input camera_location
-      snapshot_file: "/config/www/snapshot_{{ states.entity_id | replace('.', '_') }}.jpg"
-  
+      snapshot_file: "/config/www/snapshot_{{ states(!input camera_entity) | replace('.', '_') }}.jpg"
   - service: camera.snapshot
     data:
       entity_id: !input camera_entity
       filename: "{{ snapshot_file }}"
-  
   - service: notify.pushover_reolink
     data:
       title: "{{ detected_object }} detected"
