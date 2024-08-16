@@ -45,7 +45,7 @@ trigger:
 
 condition:
   - condition: template
-    value_template: > {% set last_triggered = as_timestamp(state_attr(this.entity_id, 'last_triggered')) | default(0) %} {{ (as_timestamp(now()) - last_triggered) | int > (input.interval | int) }}
+    value_template: {% set last_triggered = as_timestamp(state_attr(this.entity_id, 'last_triggered')) | default(0) %} {{ (as_timestamp(now()) - last_triggered) | int > (input.interval | int) }}
 
 action:
   - variables:
