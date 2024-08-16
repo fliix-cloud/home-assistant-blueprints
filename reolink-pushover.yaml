@@ -44,13 +44,14 @@ condition:
 
 action:
   - variables:
-      snapshot_file: "/config/www/snapshot_{{ states.entity_id | replace('.', '_') }}.jpg"
+      detected_object: !input detected_object
       artikel: >
-        {% if !input.detected_object in ["Besucher", "Paket", "Auto", "Tier"] %}
+        {% if detected_object in ["Besucher", "Paket", "Auto", "Tier"] %}
           Ein
         {% else %}
           Eine
         {% endif %}
+      snapshot_file: "/config/www/snapshot_{{ states.entity_id | replace('.', '_') }}.jpg"
   
   - service: camera.snapshot
     data:
@@ -59,7 +60,7 @@ action:
   
   - service: notify.pushover_reolink
     data:
-      title: "{{ artikel }} {{ !input.detected_object }} wurde erkannt!"
-      message: "{{ artikel }} {{ !input.detected_object }} wurde erkannt."
+      title: "{{ artikel }} {{ detected_object }} wurde erkannt!"
+      message: "{{ artikel }} {{ detected_object }} wurde erkannt."
       data:
         attachment: "{{ snapshot_file }}"
