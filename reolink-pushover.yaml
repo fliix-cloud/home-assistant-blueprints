@@ -50,12 +50,12 @@ condition:
 
 action:
   - variables:
-      detected_object: !input detected_object
-      camera_location: !input camera_location
+      detected_object: "{{ detected_object }}"
+      camera_location: "{{ camera_location }}"
       snapshot_file: "/config/www/snapshot_{{ states(camera_entity) | replace('.', '_') }}.jpg"
   - service: camera.snapshot
     data:
-      entity_id: !input camera_entity
+      entity_id: "{{ camera_entity }}"
       filename: "{{ snapshot_file }}"
   - service: notify.pushover_reolink
     data:
