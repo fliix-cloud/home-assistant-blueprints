@@ -1,28 +1,33 @@
 blueprint:
-  name: Reolink Kamera Benachrichtigung bei Bewegungserkennung
-  description: Sendet ein Bild von der Reolink Kamera per Pushover, wenn eine Person, ein Besucher, ein Paket, ein Tier oder ein Auto erkannt wird, aber nur einmal alle 60 Sekunden.
+  name: Reolink Camera Notification on Detection
+  description: Sends a snapshot from the Reolink camera via Pushover when a Pet, Person, Car, Package, or Visitor is detected, but only once every 60 seconds.
   domain: automation
   input:
     camera_entity:
-      name: Kamera
-      description: Die Kamera, die das Bild liefern soll.
+      name: Camera
+      description: The camera that will provide the snapshot.
       selector:
         entity:
           domain: camera
     motion_sensor:
-      name: Bewegungssensor
-      description: Der Bewegungssensor, der den 1/0 Zustand liefert.
+      name: Motion Sensor
+      description: The motion sensor that provides the 1/0 state.
       selector:
         entity:
           domain: binary_sensor
     detected_object:
-      name: Erkanntes Objekt
-      description: Beschreibe das erkannte Objekt (z.B. Person, Besucher, Paket, Tier, Auto)
+      name: Detected Object
+      description: Specify the detected object (e.g., Pet, Person, Car, Package, Visitor).
+      selector:
+        text:
+    camera_location:
+      name: Camera Location
+      description: Specify the location of the camera (e.g., Doorbell, Backdoor, Garden).
       selector:
         text:
     interval:
-      name: Minimaler Intervall
-      description: Minimaler Zeitabstand (in Sekunden) zwischen zwei Benachrichtigungen.
+      name: Minimum Interval
+      description: Minimum time interval (in seconds) between notifications.
       default: 60
       selector:
         number:
@@ -45,12 +50,7 @@ condition:
 action:
   - variables:
       detected_object: !input detected_object
-      artikel: >
-        {% if detected_object in ["Besucher", "Paket", "Auto", "Tier"] %}
-          Ein
-        {% else %}
-          Eine
-        {% endif %}
+      camera_location: !input camera_location
       snapshot_file: "/config/www/snapshot_{{ states.entity_id | replace('.', '_') }}.jpg"
   
   - service: camera.snapshot
@@ -60,7 +60,7 @@ action:
   
   - service: notify.pushover_reolink
     data:
-      title: "{{ artikel }} {{ detected_object }} wurde erkannt!"
-      message: "{{ artikel }} {{ detected_object }} wurde erkannt."
+      title: "{{ detected_object }} detected"
+      message: "{{ detected_object }} detected at {{ camera_location }}"
       data:
         attachment: "{{ snapshot_file }}"
