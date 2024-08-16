@@ -43,16 +43,18 @@ trigger:
     from: "off"
     to: "on"
 
+variables:
+  snapshot_file: "/config/www/snapshot_{{ states['!input.camera_entity'].object_id }}.jpg"
+  detected_object: !input detected_object
+  camera_location: !input camera_location
+
 action:
-  - variables:
-      detected_object: !input detected_object
-      camera_location: !input camera_location
-      snapshot_file: "/config/www/snapshot_{{ states.entity_id | replace('.', '_') }}.jpg"
-  
   - service: camera.snapshot
     data:
-      entity_id: !input camera_entity
+      entity_id: !input.camera_entity
       filename: "{{ snapshot_file }}"
+  
+  - delay: !input.interval
   
   - service: notify.pushover_reolink
     data:
@@ -60,6 +62,3 @@ action:
       message: "{{ detected_object }} detected at {{ camera_location }}"
       data:
         attachment: "{{ snapshot_file }}"
-        
-  - delay:
-    seconds: !input.interval
