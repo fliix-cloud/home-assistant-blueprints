@@ -71,8 +71,8 @@ action:
       data:
         attachment: "{{ snapshot_file }}"
 
-  - service: input_datetime.set_datetime
-    target:
-      entity_id: "{{ helper_entity }}"
-    data:
-      timestamp: "{{ as_timestamp(now()) }}"
+ # - service: input_datetime.set_datetime
+ #   target:
+ #     entity_id: "{{ helper_entity }}"
+ #   data:
+ #     timestamp: "{{ as_timestamp(now()) }}"
