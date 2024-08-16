@@ -45,19 +45,19 @@ trigger:
 
 variables:
   helper_entity: >
-    {{ 'input_datetime.' + states['!input motion_sensor'].object_id + '_last_triggered' | replace('binary_sensor.', '') }}
+    {{ 'input_datetime.' + states['!input.motion_sensor'].object_id + '_last_triggered' | replace('binary_sensor.', '') }}
 
 condition:
   - condition: template
     value_template: >
       {% set last_triggered = states(helper_entity).state %}
-      {{ last_triggered == 'unknown' or (as_timestamp(now()) - as_timestamp(last_triggered)) | int > (input.interval | int) }}
+      {{ last_triggered == none or (as_timestamp(now()) - as_timestamp(last_triggered)) | int > (input.interval | int) }}
 
 action:
   - variables:
       detected_object: !input detected_object
       camera_location: !input camera_location
-      snapshot_file: "/config/www/snapshot_{{ states['!input camera_entity'].object_id }}.jpg"
+      snapshot_file: "/config/www/snapshot_{{ states['!input.camera_entity'].object_id }}.jpg"
   
   - service: camera.snapshot
     data:
