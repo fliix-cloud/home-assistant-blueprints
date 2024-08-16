@@ -35,7 +35,7 @@ blueprint:
           max: 600
           unit_of_measurement: seconds
 
-mode: single
+mode: restart
 
 trigger:
   - platform: state
@@ -43,23 +43,18 @@ trigger:
     from: "off"
     to: "on"
 
-condition:
-  - condition: template
-    value_template: >
-      {{ (as_timestamp(now()) - as_timestamp(states('input_number.interval') | float)) > states('input_number.interval') | float }}
-
 action:
-  - variables:
-      detected_object: "{{ detected_object }}"
-      camera_location: "{{ camera_location }}"
-      snapshot_file: "/config/www/snapshot_{{ states(camera_entity) | replace('.', '_') }}.jpg"
   - service: camera.snapshot
     data:
-      entity_id: "{{ camera_entity }}"
-      filename: "{{ snapshot_file }}"
+      entity_id: !input camera_entity
+      filename: "/config/www/snapshot_{{ states.entity_id | replace('.', '_') }}.jpg"
+  
   - service: notify.pushover_reolink
     data:
-      title: "{{ detected_object }} detected"
-      message: "{{ detected_object }} detected at {{ camera_location }}"
+      title: "{{ !input.detected_object }} detected"
+      message: "{{ !input.detected_object }} detected at {{ !input.camera_location }}"
       data:
-        attachment: "{{ snapshot_file }}"
+        attachment: "/config/www/snapshot_{{ states.entity_id | replace('.', '_') }}.jpg"
+  
+  - delay:
+      seconds: !input interval
