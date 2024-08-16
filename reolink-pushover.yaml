@@ -46,8 +46,11 @@ trigger:
 condition:
   - condition: template
     value_template: >
-      {% set last_triggered = as_timestamp(state_attr(this.entity_id, 'last_triggered')) | default(0) %}
-      {{ (as_timestamp(now()) - last_triggered) | int > (input.interval | int) }}
+      {% if state_attr(this.entity_id, 'last_triggered') is none %}
+        true
+      {% else %}
+        {{ (as_timestamp(now()) - as_timestamp(state_attr(this.entity_id, 'last_triggered'))) | int > (input.interval | int) }}
+      {% endif %}
 
 action:
   - service: camera.snapshot
