@@ -39,26 +39,22 @@ mode: single
 
 trigger:
   - platform: state
-    entity_id: !input motion_sensor
+    entity_id: !input.motion_sensor
     from: "off"
     to: "on"
-
-variables:
-  snapshot_file: "/config/www/snapshot_{{ states['!input.camera_entity'].object_id }}.jpg"
-  detected_object: !input detected_object
-  camera_location: !input camera_location
 
 action:
   - service: camera.snapshot
     data:
       entity_id: !input.camera_entity
-      filename: "{{ snapshot_file }}"
-  
-  - delay: !input.interval
+      filename: "/config/www/snapshot_{{ states['!input.camera_entity'].object_id }}.jpg"
   
   - service: notify.pushover_reolink
     data:
-      title: "{{ detected_object }} detected"
-      message: "{{ detected_object }} detected at {{ camera_location }}"
+      title: "{{ !input.detected_object }} detected"
+      message: "{{ !input.detected_object }} detected at {{ !input.camera_location }}"
       data:
-        attachment: "{{ snapshot_file }}"
+        attachment: "/config/www/snapshot_{{ states['!input.camera_entity'].object_id }}.jpg"
+  
+  - delay: "{{ !input.interval }}"
+
