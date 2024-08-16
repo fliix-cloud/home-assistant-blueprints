@@ -48,16 +48,19 @@ condition:
     value_template: "{{ (as_timestamp(now()) - as_timestamp(state_attr(this.entity_id, 'last_triggered') | default(0))) | int > (input.interval | int) }}"
 
 action:
+  - variables:
+      snapshot_file: "/config/www/snapshot_{{ states.entity_id | replace('.', '_') }}.jpg"
+  
   - service: camera.snapshot
     data:
       entity_id: !input camera_entity
-      filename: "/config/www/snapshot_{{ states(!input.camera_entity) }}.jpg"
+      filename: "{{ snapshot_file }}"
   
   - service: notify.pushover
     data:
       title: "Bewegung erkannt!"
       message: "Eine Person oder ein Tier wurde erkannt."
       data:
-        attachment: "/config/www/snapshot_{{ states(!input.camera_entity) }}.jpg"
+        attachment: "{{ snapshot_file }}"
       target: !input pushover_user_key
       token: !input pushover_api_token
