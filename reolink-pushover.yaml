@@ -15,16 +15,6 @@ blueprint:
       selector:
         entity:
           domain: binary_sensor
-    pushover_user_key:
-      name: Pushover User Key
-      description: Dein Pushover User Key
-      selector:
-        text:
-    pushover_api_token:
-      name: Pushover API Token
-      description: Dein Pushover API Token
-      selector:
-        text:
     interval:
       name: Minimaler Intervall
       description: Minimaler Zeitabstand (in Sekunden) zwischen zwei Benachrichtigungen.
@@ -56,11 +46,9 @@ action:
       entity_id: !input camera_entity
       filename: "{{ snapshot_file }}"
   
-  - service: notify.pushover
+  - service: notify.pushover_reolink
     data:
       title: "Bewegung erkannt!"
       message: "Eine Person oder ein Tier wurde erkannt."
       data:
         attachment: "{{ snapshot_file }}"
-      target: !input pushover_user_key
-      token: !input pushover_api_token
