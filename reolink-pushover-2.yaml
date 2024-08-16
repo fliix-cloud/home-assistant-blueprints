@@ -48,7 +48,7 @@ condition:
     value_template: "{{ (as_timestamp(now()) - as_timestamp(state_attr(this.entity_id, 'last_triggered') | default(0))) | int > (input.interval | int) }}"
 
 variables:
-  helper_entity: {{ 'input_datetime.' + states['!input.motion_sensor'].object_id + '_last_triggered' | replace('binary_sensor.', '') }}
+  helper_entity: "{{ 'input_datetime.' + states['!input.motion_sensor'].object_id + '_last_triggered' | replace('binary_sensor.', '') }}"
 
 action:
   - variables:
