@@ -1,6 +1,6 @@
 blueprint:
-  name: Reolink Camera Notification with Dynamic Helper
-  description: Sends a snapshot from the Reolink camera via Pushover when a Pet, Person, Car, Package, or Visitor is detected, but only if the specified interval has passed since the last notification.
+  name: Reolink Camera Notification on Detection
+  description: Sends a snapshot from the Reolink camera via Pushover when a Pet, Person, Car, Package, or Visitor is detected, but only once every 60 seconds.
   domain: automation
   input:
     camera_entity:
@@ -43,21 +43,15 @@ trigger:
     from: "off"
     to: "on"
 
-#variables:
-#  helper_entity: >
-#    {{ 'input_datetime.' + states['!input.motion_sensor'].object_id + '_last_triggered' | replace('binary_sensor.', '') }}
-
-#condition:
-#  - condition: template
-#    value_template: >
-#      {% set last_triggered = states(helper_entity).state %}
-#      {{ last_triggered == none or (as_timestamp(now()) - as_timestamp(last_triggered)) | int > (input.interval | int) }}
+condition:
+  - condition: template
+    value_template: "{{ (as_timestamp(now()) - as_timestamp(state_attr(this.entity_id, 'last_triggered') | default(0))) | int > (input.interval | int) }}"
 
 action:
   - variables:
       detected_object: !input detected_object
       camera_location: !input camera_location
-      snapshot_file: "/config/www/snapshot_{{ states['!input.camera_entity'].object_id }}.jpg"
+      snapshot_file: "/config/www/snapshot_{{ states.entity_id | replace('.', '_') }}.jpg"
   
   - service: camera.snapshot
     data:
@@ -70,9 +64,3 @@ action:
       message: "{{ detected_object }} detected at {{ camera_location }}"
       data:
         attachment: "{{ snapshot_file }}"
-
- # - service: input_datetime.set_datetime
- #   target:
- #     entity_id: "{{ helper_entity }}"
- #   data:
- #     timestamp: "{{ as_timestamp(now()) }}"
