@@ -47,11 +47,11 @@ variables:
   helper_entity: >
     {{ 'input_datetime.' + states['!input.motion_sensor'].object_id + '_last_triggered' | replace('binary_sensor.', '') }}
 
-condition:
-  - condition: template
-    value_template: >
-      {% set last_triggered = states(helper_entity).state %}
-      {{ last_triggered == none or (as_timestamp(now()) - as_timestamp(last_triggered)) | int > (input.interval | int) }}
+#condition:
+#  - condition: template
+#    value_template: >
+#      {% set last_triggered = states(helper_entity).state %}
+#      {{ last_triggered == none or (as_timestamp(now()) - as_timestamp(last_triggered)) | int > (input.interval | int) }}
 
 action:
   - variables:
