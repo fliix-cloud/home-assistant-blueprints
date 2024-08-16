@@ -43,9 +43,9 @@ trigger:
     from: "off"
     to: "on"
 
-variables:
-  helper_entity: >
-    {{ 'input_datetime.' + states['!input.motion_sensor'].object_id + '_last_triggered' | replace('binary_sensor.', '') }}
+#variables:
+#  helper_entity: >
+#    {{ 'input_datetime.' + states['!input.motion_sensor'].object_id + '_last_triggered' | replace('binary_sensor.', '') }}
 
 #condition:
 #  - condition: template
